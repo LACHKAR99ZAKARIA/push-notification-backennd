@@ -1,0 +1,59 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+doctype html
+html
+  head
+    title WebSocket Push Notification Example
+    link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous")
+  body
+    .container
+      h1.mt-5 WebSocket Push Notification Example
+
+      #output.mt-3
+        // Content of the WebSocket connection output
+
+      form#pushForm.mt-3
+        .form-group
+          label(for="notificationTitle") Notification Title:
+          input(type="text" class="form-control" id="notificationTitle" name="notificationTitle" required)
+
+        .form-group
+          label(for="notificationBody") Notification Body:
+          input(type="text" class="form-control" id="notificationBody" name="notificationBody" required)
+
+        button.btn.btn-primary(type="button" onclick="sendPushNotification()") Send Push Notification
+
+    script.
+      const output = document.getElementById('output');
+      const socket = new WebSocket('ws://localhost:8080/', 'echo-protocol');
+
+      socket.addEventListener('open', function (event) {
+        output.innerHTML += '<p>WebSocket Connection Opened</p>';
+      });
+
+      socket.addEventListener('message', function (event) {
+        output.innerHTML += `<p>Received: '${event.data}'</p>`;
+      });
+
+      socket.addEventListener('close', function (event) {
+        output.innerHTML += '<p>WebSocket Connection Closed</p>';
+      });
+
+      socket.addEventListener('error', function (event) {
+        output.innerHTML += '<p>Error Occurred</p>';
+      });
+
+      function sendPushNotification() {
+        const title = document.getElementById('notificationTitle').value;
+        const body = document.getElementById('notificationBody').value;
+
+        if (title && body) {
+          const notificationData = {
+            title: title,
+            body: body
+          };
+
+          socket.send(JSON.stringify(notificationData));
+        } else {
+          alert('Please enter both title and body for the notification.');
+        }
